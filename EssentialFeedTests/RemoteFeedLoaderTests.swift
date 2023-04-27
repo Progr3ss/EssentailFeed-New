@@ -83,11 +83,6 @@ class RemoteFeedLoaderTests: XCTestCase {
             location: "a location",
             imageURL: URL(string: "http://another-url.com")!)
         
-        
-        let itemsJSON = [
-            "items": [item1.json, item2.json]
-        ]
-        
         expect(sut, toCompleteWithResult: .success([item1.model, item2.model])) {
             let json = makeItemsJSON([item1.json, item2.json])
             client.complete(withStatusCode: 200, data: json)
