@@ -18,11 +18,7 @@ public final class RemoteFeedLoader {
         case invalidData
     }
     
-    // Possible results of loading the feed
-    public enum Result: Equatable {
-        case success([FeedItem])
-        case failure(Error)
-    }
+    public typealias Result = LoadFeedResult<Error>
     
     // Initialize new instance of RemoteFeedLoader
     public init(url: URL, client: HTTPClient) {
