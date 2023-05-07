@@ -18,6 +18,7 @@ class URLSessionHTTPClient {
         session.dataTask(with: url) { data, response, error in
             
         }
+        .resume()
     }
 }
 final class URLSessionHTTpClientTests: XCTestCase {
@@ -36,34 +37,41 @@ final class URLSessionHTTpClientTests: XCTestCase {
         XCTAssertEqual(session.receivedURLs, [url])
         
     }
+    func test_getFromURL_resumeDataTaskWithURL() {
+        let url = URL(string: "http://any-url.com") ?? URL(string: "http://default-url.com")!
+           let session = URLSessionSpy()
+           let task = URLSessionDataTaskSpy()
+           let sut = URLSessionHTTPClient(session: session)
+           session.stub(url: url, task: task)
+           
+           sut.get(from: url)
+           
+           XCTAssertEqual(task.resumeCallCount, 1)
+        
+    }
                                               
     private class URLSessionSpy: URLSession {
         var receivedURLs = [URL]()
+        private var stubs = [URL: URLSessionDataTask]()
+        
+        func stub(url: URL, task: URLSessionDataTask) {
+            stubs[url] = task
+        }
         
         override func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
             receivedURLs.append(url)
-            return FakeURLSessionDataTask()
+            
+            return stubs[url] ?? FakeURLSessionDataTask()
         }
    }
-    private class FakeURLSessionDataTask: URLSessionDataTask {}
+    private class FakeURLSessionDataTask: URLSessionDataTask {
+        override func resume() {}
+    }
+    private class URLSessionDataTaskSpy: URLSessionDataTask {
+        var resumeCallCount = 0
+        
+        override func resume() {
+            resumeCallCount += 1
+        }
+    }
 }
-/**
- var mergedString = ""
-   let minLength = min(word1.count, word2.count)
-   
-   for i in 0..<minLength {
-       let index1 = word1.index(word1.startIndex, offsetBy: i)
-       let index2 = word2.index(word2.startIndex, offsetBy: i)
-       mergedString.append(word1[index1])
-       mergedString.append(word2[index2])
-   }
-   
-   if word1.count > minLength {
-       mergedString += word1.suffix(from: word1.index(word1.startIndex, offsetBy: minLength))
-   } else if word2.count > minLength {
-       mergedString += word2.suffix(from: word2.index(word2.startIndex, offsetBy: minLength))
-   }
-   
-   return mergedString
- 
- */
