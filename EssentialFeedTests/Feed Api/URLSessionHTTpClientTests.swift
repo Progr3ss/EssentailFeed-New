@@ -11,25 +11,36 @@ import EssentialFeed
 import XCTest
 import EssentialFeed
 
-class URLSessionHTTPClient {
-    private let session: URLSession
-
-    init(session: URLSession = .shared) {
-        self.session = session
-    }
-
-    func get(from url: URL, completion: @escaping(HTTPClientResult) -> Void) {
-        session.dataTask(with: url) { data, response, error in
-           
-            if let error = error {
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-}
-
 final class URLSessionHTTPClientTests: XCTestCase {
     
+    override func setUp(){
+        super.setUp()
+        
+        URLProtocolSub.startInerceptionRequests()
+    }
+    
+    override func tearDown() {
+        super.tearDown()
+    }
+  
+  
+//  func test_getFromURL_failsOnAllInvalidRepresentationCases(){
+//    XCTAssertNotNil(resultErrorFor(data: nil, response: nil, error: nil))
+//    XCTAssertNotNil (resultErrorFor(data: nil, response: nonHTTPURLResponse, error: nil))
+//    XCTAssertNotNi1(resultErrorFor(data: nil, response: anyHTTPURLResponse(), error: nil))
+//    XCTAssertNotNil(resultErrorFor(data: anyData() , response: nil, error: nil))
+//    XCTAssertNotNil(resultErrorFor(data: anyData() , response: nil, error: anyNSError () ))
+//    XCTAssertNotNil (resultErrorFor (data: nil, response: nonHTTPURLResponse, error:
+//    anyNSError ()))
+//    XCTAssertNotNil (resultErrorFor (data: nil, response: anyHTTPURLResponse(), error:
+//    anyNSError () ))
+//    XCTAssertNotNil(resultErrorFor(data: anyData(), response: nonHTTPURLResponse, error:
+//    anyNSError ( )))
+//    XCTAssertNotNi1(resultErrorFor(data: anyData() , response: anyHTTPURLResponse(), error:
+//    anyNSError ()))
+//    XCTAssertNotNil(resultErrorFor(data: anyData()I
+//  }
+  
     func test_getFromURL_performsGETRequestWithURL() {
         URLProtocolSub.startInerceptionRequests()
         let url = URL(string: "http://any-url.com")!
@@ -70,7 +81,20 @@ final class URLSessionHTTPClientTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         URLProtocolSub.stopInterceptingRequests()
     }
-    
+  
+      private func anyURL () -> URL {
+        return URL(string: "http: //any-url.com")!
+      }
+      private func anyData () -> Data {
+        return Data(bytes: "any data" .utf8)
+      }
+      private func anyNSError () -> NSError {
+        return NSError (domain:
+                          "any error", code: 0)
+      }
+      private func anyHTTPURLResponse() -> HTTPURLResponse {
+        return HTTPURLResponse(url: anyURL(), statusCode: 200, httpVersion: nil, headerFields: nil)!
+      }
     // MARK: - Helpers
     
     private class URLProtocolSub: URLProtocol {
